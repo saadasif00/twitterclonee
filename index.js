@@ -1,34 +1,22 @@
-import express from "express";
-import dotenv from "dotenv";
-import databaseConnection from "./config/database.js";
-import cookieParser from "cookie-parser";
-import userRoute from "./routes/userRoute.js";
-import tweetRoute from "./routes/tweetRoute.js";
-import cors from "cors";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { Provider } from "react-redux";
+import store from './redux/store';
+import { PersistGate } from 'redux-persist/integration/react'
+import {persistStore} from "redux-persist";
 
-dotenv.config({
-    path:".env"
-})
-databaseConnection();
-const app = express(); 
+let persistor = persistStore(store);
 
-// middlewares
-app.use(express.urlencoded({
-    extended:true
-}));
-app.use(express.json());
-app.use(cookieParser());
-const corsOptions = {
-    origin:"http://localhost:3000",
-    credentials:true
-}
-app.use(cors(corsOptions));
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+      <App />
+      </PersistGate>
+    </Provider>
+  </React.StrictMode>
+);
 
-// api
-app.use("/api/v1/user",userRoute);
-app.use("/api/v1/tweet", tweetRoute);
- 
-
-app.listen(process.env.PORT,() => {
-    console.log(`Server listen at port ${process.env.PORT}`);
-})
